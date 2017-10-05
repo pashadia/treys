@@ -323,3 +323,17 @@ class Hand:
         low_bd_f_d = len([suit for suit in suits if suit == lc_suit]) == 3
 
         return (high_bd_f_d, low_bd_f_d)
+
+    # Overcards tests
+
+    def _number_of_overcards(self):
+        overs = [rank for rank in self._hand_ranks if rank > max(self._board_ranks)]
+        return len(overs)
+
+    def has_two_overcards(self):
+        """Verify we have two overcards to the flop."""
+        return self._number_of_overcards() == 2
+
+    def has_one_over(self):
+        """Verify we have one overcard to the flop."""
+        return self._number_of_overcards() == 1
