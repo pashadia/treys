@@ -265,6 +265,8 @@ class Hand:
         (True, True) means the hand is suited, and there's a flush draw.
         (False, False) means no flush draw.
 
+        Should return (True, False) if there's a flush draw with a pair in hand.
+
         Can be used with any() or all()
         """
         high_card = max(self.cards)
@@ -277,6 +279,9 @@ class Hand:
 
         high_f_d = len([suit for suit in suits if suit == hc_suit]) == 4
         low_f_d = len([suit for suit in suits if suit == lc_suit]) == 4
+
+        if any([high_f_d, low_f_d]) and self.pair_in_hand():
+            return (True, False)
 
         return (high_f_d, low_f_d)
 
@@ -337,3 +342,41 @@ class Hand:
     def has_one_over(self):
         """Verify we have one overcard to the flop."""
         return self._number_of_overcards() == 1
+
+    FLAGS = [
+        is_straight_flush,
+        is_quads,
+        is_full_house,
+        is_flush,
+        is_straight,
+        is_trips,
+        is_set,
+        is_two_pair,
+        is_one_pair,
+        is_high_card,
+        has_overpair,
+        has_overpair_to_paired_board,
+        has_top_pair,
+        has_under_top_pair,
+        has_bottom_pair,
+        has_middle_pair,
+        has_under_middle_pair,
+        has_under_pair,
+        has_top_two_pair,
+        has_top_and_bottom,
+        has_bottom_two_pair,
+        has_under_high_pair,
+        has_over_low_pair,
+        has_under_pair_to_paired,
+        has_top_set,
+        has_middle_set,
+        has_bottom_set,
+        has_straight_flush_draw,
+        has_gutshot_straight_flush_draw,
+        has_flush_draw,
+        has_straight_draw,
+        has_gutshot_straight_draw,
+        has_backdoor_flush,
+        has_two_overcards,
+        has_one_over,
+    ]

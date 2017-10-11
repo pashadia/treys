@@ -28,6 +28,16 @@ class DrawsTests(HandTestCase):
         "board": ["9s", "3s", "7s"]
     }
 
+    _flush_high_card_pair1 = {
+        "cards": ["As", "Ad"],
+        "board": ["9s", "3s", "7s"]
+    }
+
+    _flush_high_card_pair2 = {
+        "cards": ["Ad", "As"],
+        "board": ["9s", "3s", "7s"]
+    }
+
     _straight = {
         "cards": ["7s", "5s"],
         "board": ["Ac", "8d", "6s"]
@@ -52,6 +62,17 @@ class DrawsTests(HandTestCase):
         high, low = hand.has_flush_draw()
         self.assertTrue(high)
         self.assertFalse(low)
+
+    def test_flush_pair_in_hand(self):
+        # Border case where there's a pair in hand.
+        hand1 = Hand(**self._flush_high_card_pair1)
+        hand2 = Hand(**self._flush_high_card_pair2)
+        high1, low1 = hand1.has_flush_draw()
+        high2, low2 = hand2.has_flush_draw()
+        self.assertTrue(high1)
+        self.assertFalse(low1)
+        self.assertTrue(high2)
+        self.assertFalse(low2)
 
     def test_flush_draw_low_card(self):
         hand = Hand(**self._flush_low_card)
