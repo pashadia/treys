@@ -327,6 +327,9 @@ class Hand:
         high_bd_f_d = len([suit for suit in suits if suit == hc_suit]) == 3
         low_bd_f_d = len([suit for suit in suits if suit == lc_suit]) == 3
 
+        if any([high_bd_f_d, low_bd_f_d]) and self.pair_in_hand():
+            return (True, False)
+
         return (high_bd_f_d, low_bd_f_d)
 
     # Overcards tests
