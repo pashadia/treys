@@ -13,7 +13,8 @@ class Hand:
 
     """
 
-    cards = []
+    _cards = []
+    _board = []
     rank = 0
 
     def __init__(self, cards, board, evaluator=None):
@@ -26,14 +27,14 @@ class Hand:
         assert len(cardset) == len(cards) + len(board)
 
         if isinstance(cards[0], str):
-            self.cards = [Card.new(card_str) for card_str in cards]
+            self._cards = [Card.new(card_str) for card_str in cards]
         else:
-            self.cards = cards
+            self._cards = cards
 
         if isinstance(board[0], str):
-            self.board = [Card.new(card_str) for card_str in board]
+            self._board = [Card.new(card_str) for card_str in board]
         else:
-            self.board = board
+            self._board = board
 
         if evaluator:
             self.ev = evaluator
@@ -41,27 +42,56 @@ class Hand:
             ev = Evaluator()
             self.ev = ev
 
-        self.rank = self.ev.evaluate(self.cards, self.board)
+        self.rank = self.ev.evaluate(self._cards, self._board)
         self.rank_class = self.ev.get_rank_class(self.rank)
 
-        self._hand_ranks = sorted([Card.get_rank_int(card) for card in self.cards])
-        self._board_ranks = sorted([Card.get_rank_int(card) for card in self.board])
+        self._hand_ranks = sorted([Card.get_rank_int(card) for card in self._cards])
+        self._board_ranks = sorted([Card.get_rank_int(card) for card in self._board])
+
+    def cards():
+        doc = "The cards property."
+
+        def fget(self):
+            return [Card.int_to_str(card) for card in self._cards]
+
+        def fset(self, value):
+            self._cards = [Card.new(card_str) for card_str in value]
+
+        def fdel(self):
+            del self._cards
+        return locals()
+    cards = property(**cards())
+
+    def board():
+        doc = "The board property."
+
+        def fget(self):
+            return [Card.int_to_str(card) for card in self._board]
+
+        def fset(self, value):
+            self._board = [Card.new(card_str) for card_str in value]
+
+        def fdel(self):
+            del self._board
+        return locals()
+    board = property(**board())
+
 
     def __str__(self):
         """Provide a pretty looking string representation."""
         s = "%s on %s" % \
-            (str(list(map(Card.int_to_pretty_str, self.cards))),
-             str(list(map(Card.int_to_pretty_str, self.board))))
+            (str(list(map(Card.int_to_pretty_str, self._cards))),
+             str(list(map(Card.int_to_pretty_str, self._board))))
         return s
 
     def pair_in_hand(self):
         """Verify if the hand has a pair."""
-        ranks = list(map(Card.get_rank_int, self.cards))
+        ranks = list(map(Card.get_rank_int, self._cards))
         return ranks[0] == ranks[1]
 
     def paired_board(self):
         """Verify if the board has paired."""
-        ranks = list(map(Card.get_rank_int, self.board))
+        ranks = list(map(Card.get_rank_int, self._board))
         return len(set(ranks)) < len(ranks)
 
     def rest_of_the_deck(self):
@@ -69,7 +99,7 @@ class Hand:
         full_deck = Deck.GetFullDeck()
         return [elem
                 for elem in full_deck
-                if elem not in (self.cards + self.board)]
+                if elem not in (self._cards + self._board)]
 
     # Hand strength checks
     # These are gross hand rank checks.
@@ -121,7 +151,7 @@ class Hand:
         """Verify if the hand is an overpair to the board."""
         if not self.pair_in_hand():
             return False
-        rank = Card.get_rank_int(self.cards[0])
+        rank = Card.get_rank_int(self._cards[0])
         return all(map(lambda x: rank > x, self._board_ranks))
 
     def has_overpair_to_paired_board(self):
@@ -151,7 +181,7 @@ class Hand:
 
         Assumes we're on the flop.
         """
-        if (len(self.board) != 3) or self.pair_in_hand():
+        if (len(self._board) != 3) or self.pair_in_hand():
             return False
         return self.is_one_pair() and \
             not self.has_top_pair() and \
@@ -169,7 +199,7 @@ class Hand:
         """Verify if the hand is an underpair to the board."""
         if not self.pair_in_hand():
             return False
-        rank = Card.get_rank_int(self.cards[0])
+        rank = Card.get_rank_int(self._cards[0])
         return all(map(lambda x: rank < x, self._board_ranks))
 
     # Two pair tests start here.
@@ -241,8 +271,8 @@ class Hand:
         """
         count = 0
         for c in self.rest_of_the_deck():
-            new_board = self.board + [c]
-            new_hand = Hand(self.cards, new_board, self.ev)
+            new_board = self._board + [c]
+            new_hand = Hand(self._cards, new_board, self.ev)
             if flag(new_hand):
                 count += 1
         return count
@@ -269,13 +299,13 @@ class Hand:
 
         Can be used with any() or all()
         """
-        high_card = max(self.cards)
+        high_card = max(self._cards)
         hc_suit = Card.get_suit_int(high_card)
 
-        low_card = min(self.cards)
+        low_card = min(self._cards)
         lc_suit = Card.get_suit_int(low_card)
 
-        suits = list(map(Card.get_suit_int, self.cards + self.board))
+        suits = list(map(Card.get_suit_int, self._cards + self._board))
 
         high_f_d = len([suit for suit in suits if suit == hc_suit]) == 4
         low_f_d = len([suit for suit in suits if suit == lc_suit]) == 4
@@ -316,13 +346,13 @@ class Hand:
         Can be used with any() or all()
         """
 
-        high_card = max(self.cards)
+        high_card = max(self._cards)
         hc_suit = Card.get_suit_int(high_card)
 
-        low_card = min(self.cards)
+        low_card = min(self._cards)
         lc_suit = Card.get_suit_int(low_card)
 
-        suits = list(map(Card.get_suit_int, self.cards + self.board))
+        suits = list(map(Card.get_suit_int, self._cards + self._board))
 
         high_bd_f_d = len([suit for suit in suits if suit == hc_suit]) == 3
         low_bd_f_d = len([suit for suit in suits if suit == lc_suit]) == 3
