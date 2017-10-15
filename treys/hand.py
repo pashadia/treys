@@ -23,18 +23,18 @@ class Hand:
         assert len(board) in [3, 4, 5]
 
         # checking there are 5, 6 or 7 unique cards
-        cardset = set(cards + board)
+        cardset = set(list(cards) + list(board))
         assert len(cardset) == len(cards) + len(board)
 
         if isinstance(cards[0], str):
             self._cards = [Card.new(card_str) for card_str in cards]
         else:
-            self._cards = cards
+            self._cards = list(cards)
 
         if isinstance(board[0], str):
             self._board = [Card.new(card_str) for card_str in board]
         else:
-            self._board = board
+            self._board = list(board)
 
         if evaluator:
             self.ev = evaluator
@@ -75,7 +75,6 @@ class Hand:
             del self._board
         return locals()
     board = property(**board())
-
 
     def __str__(self):
         """Provide a pretty looking string representation."""
