@@ -1,6 +1,7 @@
 """Contains the Hand class definition."""
 
 from deuces import Card, Deck, Evaluator
+from functools import lru_cache
 
 
 class Hand:
@@ -260,6 +261,7 @@ class Hand:
     # plus supporting code.
     #
     # Needed method for the draws
+    @lru_cache(maxsize=4096)
     def outs_to(self, flag):
         """Count the number of outs to making a hand.
 
@@ -279,12 +281,22 @@ class Hand:
     # Flags for the direct draws
     def has_straight_flush_draw(self):
         """Has a straight flush draw."""
+        if not any(self.has_flush_draw()):
+            return False
+        if not self.has_straight_draw():
+            return False
         return self.outs_to(Hand.is_straight_flush) >= 2
 
+    @lru_cache(maxsize=128)
     def has_gutshot_straight_flush_draw(self):
         """Has a gutshot to a straight flush."""
+        if not any(self.has_flush_draw()):
+            return False
+        if not self.has_gutshot_straight_draw():
+            return False
         return self.outs_to(Hand.is_straight_flush) is 1
 
+    @lru_cache(maxsize=128)
     def has_flush_draw(self):
         """Verifies if there is a flush draw.
 
@@ -298,6 +310,9 @@ class Hand:
 
         Can be used with any() or all()
         """
+        if self.is_flush():
+            return (False, False)
+
         high_card = max(self._cards)
         hc_suit = Card.get_suit_int(high_card)
 
@@ -314,16 +329,36 @@ class Hand:
 
         return (high_f_d, low_f_d)
 
+    @lru_cache(maxsize=128)
     def has_straight_draw(self):
         """Has an up-and-down straight draw."""
+        if any([self.is_straight_flush(),
+                self.is_quads(),
+                self.is_full_house(),
+                self.is_flush(),
+                self.is_straight(),
+                self.is_set(),
+                self.is_trips(),
+                self.is_two_pair()]):
+            return False
         outs = self.outs_to(Hand.is_straight)
         if any(self.has_flush_draw()):
             return outs == 6
         else:
             return outs == 8
 
+    @lru_cache(maxsize=128)
     def has_gutshot_straight_draw(self):
         """Has a gutshot straight draw."""
+        if any([self.is_straight_flush(),
+                self.is_quads(),
+                self.is_full_house(),
+                self.is_flush(),
+                self.is_straight(),
+                self.is_set(),
+                self.is_trips(),
+                self.is_two_pair()]):
+            return False
         outs = self.outs_to(Hand.is_straight)
         if any(self.has_flush_draw()):
             return outs == 3
