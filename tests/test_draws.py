@@ -48,6 +48,11 @@ class DrawsTests(HandTestCase):
         "board": ["7d", "5c", "2s"]
     }
 
+    _made_flush = {
+        "cards": ["Ac", "3c"],
+        "board": ["Kc", "Tc", "2c"]
+    }
+
     # _all_hands doesn't include _sf and _gsf because they also draw to flushes and straights.
     _all_hands = [_flush, _straight, _gut_straight]
 
@@ -91,3 +96,9 @@ class DrawsTests(HandTestCase):
 
     def test_gutshot_straight_draw(self):
         self.standard_check(self._gut_straight, Hand.has_gutshot_straight_draw)
+
+    def test_made_flush_doesnt_draw(self):
+        hand = Hand(**self._made_flush)
+        high, low = hand.has_flush_draw()
+        self.assertFalse(high)
+        self.assertFalse(low)
