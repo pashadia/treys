@@ -52,3 +52,16 @@ class FlopTests(TestCase):
 
         xyzr = Flop(self._xyz_r)
         assert xyzr.suits == ["c", "s", "d"]
+
+    def test_paired(self):
+        bh = Flop(self._base_hand)
+        assert bh.paired_board() == True
+
+        t4 = Flop(self._xyz_r)
+        assert t4.paired_board() == False
+
+    def test_ranks(self):
+        bh = Flop(self._base_hand)
+        assert bh.ranks == [10, 10, 11]
+
+

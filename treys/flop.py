@@ -15,7 +15,6 @@ class Flop:
 
         Sorts the internal vector, but does not calculate type.
         """
-        assert len(cards) == 3
 
         if isinstance(cards[0], str):
             self._cards = [Card.new(card_str) for card_str in cards]
@@ -61,7 +60,12 @@ class Flop:
         return locals()
     type = property(**type())
 
-    def _ranks(self):
+    @property
+    def ranks(self):
+        """Return an ordered list of card ranks."""
+        return [Card.get_rank_int(card) for card in self._cards]
+
+    def _unique_ranks(self):
         """Return a list of unique card ranks."""
         return list(set([Card.get_rank_int(card) for card in self._cards]))
 
@@ -76,7 +80,7 @@ class Flop:
         return list(set(self.suits))
 
     def _calculate_flop_type(self):
-        r = len(self._ranks())
+        r = len(self._unique_ranks())
         s = len(self.unique_suits)
         if r == 1:
             return 1
@@ -94,3 +98,8 @@ class Flop:
                 return 6
 
         return 0  # This should never happen.
+
+    def paired_board(self):
+        """Return true if there's a pair on the board."""
+
+        return len(self._unique_ranks()) == 2

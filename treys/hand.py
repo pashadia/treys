@@ -3,6 +3,8 @@
 from deuces import Card, Deck, Evaluator
 from functools import lru_cache
 
+from .flop import Flop
+
 
 class Hand:
     """
@@ -32,10 +34,7 @@ class Hand:
         else:
             self._cards = list(cards)
 
-        if isinstance(board[0], str):
-            self._board = [Card.new(card_str) for card_str in board]
-        else:
-            self._board = list(board)
+        self._board = Flop(board)
 
         if evaluator:
             self.ev = evaluator
@@ -43,11 +42,11 @@ class Hand:
             ev = Evaluator()
             self.ev = ev
 
-        self.rank = self.ev.evaluate(self._cards, self._board)
+        self.rank = self.ev.evaluate(self._cards, self._board._cards)
         self.rank_class = self.ev.get_rank_class(self.rank)
 
         self._hand_ranks = sorted([Card.get_rank_int(card) for card in self._cards])
-        self._board_ranks = sorted([Card.get_rank_int(card) for card in self._board])
+        self._board_ranks = self._board.ranks
 
     def cards():
         doc = "The cards property."
@@ -91,15 +90,14 @@ class Hand:
 
     def paired_board(self):
         """Verify if the board has paired."""
-        ranks = list(map(Card.get_rank_int, self._board))
-        return len(set(ranks)) < len(ranks)
+        return self._board.paired_board()
 
     def rest_of_the_deck(self):
         """Return a list with the rest of the cards in the deck."""
         full_deck = Deck.GetFullDeck()
         return [elem
                 for elem in full_deck
-                if elem not in (self._cards + self._board)]
+                if elem not in (self._cards + self._board._cards)]
 
     # Hand strength checks
     # These are gross hand rank checks.
@@ -181,7 +179,7 @@ class Hand:
 
         Assumes we're on the flop.
         """
-        if (len(self._board) != 3) or self.pair_in_hand():
+        if (len(self._board._cards) != 3) or self.pair_in_hand():
             return False
         return self.is_one_pair() and \
             not self.has_top_pair() and \
@@ -272,7 +270,7 @@ class Hand:
         """
         count = 0
         for c in self.rest_of_the_deck():
-            new_board = self._board + [c]
+            new_board = self._board._cards + [c]
             new_hand = Hand(self._cards, new_board, self.ev)
             if flag(new_hand):
                 count += 1
@@ -319,7 +317,7 @@ class Hand:
         low_card = min(self._cards)
         lc_suit = Card.get_suit_int(low_card)
 
-        suits = list(map(Card.get_suit_int, self._cards + self._board))
+        suits = list(map(Card.get_suit_int, self._cards + self._board._cards))
 
         high_f_d = len([suit for suit in suits if suit == hc_suit]) == 4
         low_f_d = len([suit for suit in suits if suit == lc_suit]) == 4
@@ -386,7 +384,7 @@ class Hand:
         low_card = min(self._cards)
         lc_suit = Card.get_suit_int(low_card)
 
-        suits = list(map(Card.get_suit_int, self._cards + self._board))
+        suits = list(map(Card.get_suit_int, self._cards + self._board._cards))
 
         high_bd_f_d = len([suit for suit in suits if suit == hc_suit]) == 3
         low_bd_f_d = len([suit for suit in suits if suit == lc_suit]) == 3
