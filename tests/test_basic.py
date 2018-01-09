@@ -77,6 +77,11 @@ class HandTests(TestCase):
         not_paired = Hand(["Ts", "Td"], ["As", "Kd", "3c"])
         self.assertFalse(not_paired.paired_board())
 
+    def test_suited_hands(self):
+        suited = Hand(["As", "Ks"], ["2d", "3c", "5h"], self.ev)
+        self.assertTrue(suited.hand_is_suited())
+        not_suited = Hand(["As", "Kd"], ["2d", "3c", "5h"], self.ev)
+        self.assertFalse(not_suited.hand_is_suited())
 
 if __name__ == "__main__":
     main()
