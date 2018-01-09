@@ -33,6 +33,9 @@ class Hand:
             self._cards = [Card.new(card_str) for card_str in cards]
         else:
             self._cards = list(cards)
+        self._cards = sorted(self._cards)
+
+        #TODO allow for Flop object to be passed
 
         self._board = Flop(board)
 
@@ -66,7 +69,7 @@ class Hand:
         doc = "The board property."
 
         def fget(self):
-            return [Card.int_to_str(card) for card in self._board]
+            return [Card.int_to_str(card) for card in self._board._cards]
 
         def fset(self, value):
             self._board = [Card.new(card_str) for card_str in value]
@@ -80,8 +83,11 @@ class Hand:
         """Provide a pretty looking string representation."""
         s = "%s on %s" % \
             (str(list(map(Card.int_to_pretty_str, self._cards))),
-             str(list(map(Card.int_to_pretty_str, self._board))))
+             self._board)
         return s
+
+    def hand_is_suited(self):
+        return Card.get_suit_int(self._cards[0]) == Card.get_suit_int(self._cards[1])
 
     def pair_in_hand(self):
         """Verify if the hand has a pair."""
@@ -445,3 +451,67 @@ class Hand:
         has_two_overcards,
         has_one_over,
     ]
+
+
+    def to_hdsc(self):
+        """Transform the hand's suits to HDSC.
+
+        Returns a list of two cards (with the same ranks and changed suits)
+        """
+        
+
+        new_suits = ["c", "s"]  # Defaulting to this
+
+        # Logic in google drive, building new_suits list
+        if self.is_flush() or self.is_straight_flush():
+            new_suits = ["h", "h"]
+        elif any(self.has_flush_draw()):
+            if self._board.type in [3, 5]:
+                new_suits = ["h", "h"]
+            else:
+                assert self._board.type == 6
+                (low, hi) = self.has_flush_draw()
+                if low:
+                    new_suits = ["h", "c"]
+                else:
+                    assert hi
+                    new_suits = ["c", "h"]
+        elif any(self.has_backdoor_flush()):
+            if self.has_bottom_pair() or self.has_middle_pair():
+                new_suits = ["s", "s"]
+            elif self.has_top_pair():
+                new_suits = ["h", "h"]
+            elif self.is_two_pair() and self.paired_board():
+                if self.pair_in_hand():
+                    new_suits = ["h", "c"]
+                else:
+                    # Hand is suited
+                    new_suits = ["h", "h"]
+            elif self.is_trips():
+                if self._board.type == 2:
+                    new_suits = ["s", "s"]
+                else:
+                    assert self.board.type == 3
+                    new_suits = ["h", "s"]
+                    #TESTME (with both higher and lower kickers)
+            elif self.is_set():
+                assert self._board.type == 5
+                new_suits = ["h", "c"]
+            else:
+                if self._board.type in [1, 2, 4]:
+                    new_suits = ["h", "h"]
+                elif self._board.type in [3, 5]:
+                    if self.hand_is_suited():
+                        new_suits = ["d", "d"]
+                    else:
+                        new_suits = ["h", "c"]
+
+            
+        # Actually buid new hand with new suits
+        new_cards = []
+ 
+        for (card, suit) in zip(self.cards, new_suits):
+            new_card = card[0] + suit
+            new_cards.append(new_card)
+
+        return new_cards

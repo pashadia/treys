@@ -23,6 +23,10 @@ class Flop:
 
         self._cards.sort()
 
+    def __str__(self):
+        """Provide a pretty looking string representation."""
+        return str(list(map(Card.int_to_pretty_str, self._cards)))
+
 
     def cards():
         doc = "The cards property."
