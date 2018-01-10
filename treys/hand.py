@@ -459,14 +459,7 @@ class Hand:
         Returns a list of two cards (with the same ranks and changed suits)
         """
         
-<<<<<<< HEAD
-
         new_suits = ["c", "s"]  # Defaulting to this
-=======
-        # TODO
-
-        new_suits = ["c", "s"]  # FIXME
->>>>>>> e7cd88221c492e7bcfd9bc460b84c24e7f105602
 
         # Logic in google drive, building new_suits list
         if self.is_flush() or self.is_straight_flush():
