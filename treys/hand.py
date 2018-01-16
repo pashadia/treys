@@ -490,17 +490,25 @@ class Hand:
                 else:
                     new_suits = ["h", "h"]
             elif self.is_two_pair() and self.paired_board():
-                if self.pair_in_hand():
-                    new_suits = ["h", "c"]
-                else:
-                    # Hand is suited
+                # if self.pair_in_hand():
+                #     new_suits = ["h", "c"]
+                # elif self._board.type == 2:
+                #     # Hand is suited
+                #     new_suits = ["h", "h"]
+                if self._board.type == 2:
                     new_suits = ["h", "h"]
+                else:  # Board type == 3
+                    assert self._board.type == 3
+                    if self.hand_is_suited():
+                        new_suits = ["d", "d"]
+                    else:
+                        new_suits = ["h", "c"]
             elif self.is_trips():
                 if self._board.type == 2:
                     new_suits = ["s", "s"]
                 else:
-                    assert self.board.type == 3
-                    new_suits = ["h", "s"]
+                    assert self._board.type == 3
+                    new_suits = ["h", "c"]
                     #TESTME (with both higher and lower kickers)
             elif self.is_set():
                 assert self._board.type == 5
@@ -513,6 +521,14 @@ class Hand:
                         new_suits = ["d", "d"]
                     else:
                         new_suits = ["h", "c"]
+        else:  # No flush / draw / backdoor
+            if self.pair_in_hand():
+                if self.has_top_set():
+                    new_suits = ["c", "d"]
+                else:
+                    new_suits = ["c", "s"]
+            else:
+                new_suits = ["c", "c"]
 
             
         # Actually buid new hand with new suits
