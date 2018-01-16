@@ -78,6 +78,32 @@ class TransformCase(TestCase):
         "board": ["2c", "2h", "8d"]
     }
 
+    _nonetype_bug = {
+        "cards": ["Td", "As"],
+        "board": ["2c", "9d", "Ad"]
+    }
+
+    _nonetype_bug_transform = {
+        "cards": ["Th", "Ac"]
+    }
+
+    _bd_flush_2_pair = {
+        "cards": ["2h", "9h"],
+        "board": ["2c", "9d", "Ah"]
+    }
+
+    _bd_flush_2_pair_transform = {
+        "cards": ["2s", "9s"]
+
+    }
+
+    _bd_flush_other = {
+        "cards": ["3h", "4h"],
+        "board": ["2c", "9d", "Ah"],
+    }
+
+    _bd_flush_other_transform = _bd_flush_other
+
     _default= {
         "cards": ["As", "Qd"],
         "board": ["Ac", "Qh", "8d"]
@@ -87,8 +113,15 @@ class TransformCase(TestCase):
         "cards": ["Qc", "As"],
     }
 
-    _hands = [_line2, _line6, _line10, _line9, _line16, _line24, _default]
-    _hands_transformed = [_line2_transform, _line6_transform, _line10_transform, _line9_transform, _line16_transform, _line24_transform, _default_transform]
+    _hands = [_line2, _line6, _line10, _line9, 
+        _line16, _line24, _default, _nonetype_bug,
+        _bd_flush_2_pair,
+        _bd_flush_other]
+    _hands_transformed = [_line2_transform, _line6_transform, 
+        _line10_transform, _line9_transform, _line16_transform, 
+        _line24_transform, _default_transform, _nonetype_bug_transform,
+        _bd_flush_2_pair_transform,
+        _bd_flush_other_transform]
 
 
     def setUp(self):
@@ -109,8 +142,5 @@ class TransformCase(TestCase):
         for (hand_dict, transf_dict) in zip(self._hands, self._hands_transformed):
             hand = Hand(**hand_dict)
             should_be = transf_dict["cards"]
-
-            print(hand)
-            print(should_be)
 
             self.assertEqual(hand.to_hdsc(), should_be)

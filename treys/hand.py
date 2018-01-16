@@ -476,10 +476,19 @@ class Hand:
                     assert hi
                     new_suits = ["c", "h"]
         elif any(self.has_backdoor_flush()):
-            if self.has_bottom_pair() or self.has_middle_pair():
-                new_suits = ["s", "s"]
-            elif self.has_top_pair():
-                new_suits = ["h", "h"]
+            if self._board.type == 4:
+                if self.has_bottom_pair() or self.has_middle_pair():
+                    new_suits = ["s", "s"]
+                elif self.has_top_pair():
+                    new_suits = ["h", "h"]
+                elif self.has_top_two_pair():
+                    new_suits = ["h", "h"]
+                elif self.has_top_and_bottom():
+                    new_suits = ["d", "d"]
+                elif self.has_bottom_two_pair():
+                    new_suits = ["s", "s"]
+                else:
+                    new_suits = ["h", "h"]
             elif self.is_two_pair() and self.paired_board():
                 if self.pair_in_hand():
                     new_suits = ["h", "c"]
