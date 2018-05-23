@@ -27,6 +27,10 @@ class Flop:
         """Provide a pretty looking string representation."""
         return str(list(map(Card.int_to_pretty_str, self._cards)))
 
+    def __eq__(self, other):
+        """Equality condition."""
+        return self._cards == other._cards
+
 
     def cards():
         doc = "The cards property."
@@ -68,6 +72,12 @@ class Flop:
     def ranks(self):
         """Return an ordered list of card ranks."""
         return [Card.get_rank_int(card) for card in self._cards]
+
+    @property
+    def char_ranks(self):
+        """Return an ordered list of card rank chars."""
+        return [Card.STR_RANKS[rank] for rank in self.ranks]
+    
 
     def _unique_ranks(self):
         """Return a list of unique card ranks."""

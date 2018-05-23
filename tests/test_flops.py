@@ -64,4 +64,13 @@ class FlopTests(TestCase):
         bh = Flop(self._base_hand)
         assert bh.ranks == [10, 10, 11]
 
+    def test_equals_to_self(self):
+        bh = Flop(self._base_hand)
+        bh_rev = Flop([Card.new("Kh"), Card.new("Qs"), Card.new("Qh")])
+
+        assert bh == bh_rev
+
+
+
+
 
